@@ -1,0 +1,94 @@
+{
+  "run_id": "example-run",
+  "started_utc": "1970-01-01T00:00:00Z",
+  "deadline_utc": "1970-01-01T00:45:00Z",
+  "data_root": "../street-scene-data",
+  "max_additional_bytes": 53687091200,
+  "min_free_bytes": 53687091200,
+  "max_agents": 2,
+  "max_heavy_jobs": 1,
+  "reference": {
+    "url": "https://somethingbig.ai/post-assets/astra-review/new-york-manhattan.mp4",
+    "sha256": "69d99e7dd6c5854f95f8f5194e381d78c80e1dfd767c546e800db4721046bb21",
+    "source_start_frame": 150,
+    "source_end_frame_exclusive": 270,
+    "source_fps": 24,
+    "anchor_source_frames": [
+      150,
+      210,
+      269
+    ],
+    "use": "Local visual comparison only. Do not redistribute the reference as a production asset.",
+    "selection": "Complete continuous rear chase shot from 6.25 seconds to 11.25 seconds. Cut boundaries detected and checked against the contact sheet."
+  },
+  "output": {
+    "frame_start": 1,
+    "frame_end": 120,
+    "fps": 24,
+    "width": 1920,
+    "height": 1080,
+    "engine": "CYCLES",
+    "device": "METAL",
+    "user_acceptance": "pending"
+  },
+  "alignment": {
+    "units": "meters",
+    "road_width": 12,
+    "sidewalk_width": 2,
+    "car_width": 2.05,
+    "car_length": 4.7,
+    "camera_lens_mm": 37,
+    "camera_height": 1.5,
+    "camera_x": -0.6,
+    "camera_direction": [
+      1.35,
+      20,
+      -0.88
+    ],
+    "hero_x": 0.08,
+    "camera_distance_behind_car": 9.2,
+    "uncertainty": "All scene dimensions, lens, motion speed, exposure and lighting are inferred from images, not original metadata.",
+    "priorities": [
+      "rear car silhouette",
+      "camera framing",
+      "sunlit right facades",
+      "shaded left facades",
+      "fire escape density",
+      "asphalt and sidewalk scale"
+    ]
+  },
+  "sources": [
+    {
+      "class": "hero car",
+      "source": "bespoke Blender mesh",
+      "rights": "Original construction; no downloaded vehicle geometry or brand marks.",
+      "format": "blend",
+      "estimate_mib": 20,
+      "status": "diagnostic first; must pass image review"
+    },
+    {
+      "class": "facades and fire escapes",
+      "source": "bespoke modular Blender geometry with ambientCG Bricks059 color, roughness and displacement",
+      "rights": "Original geometry. Bricks059 images are CC0 1.0; https://docs.ambientcg.com/license/",
+      "format": "blend with packed JPG textures",
+      "estimate_mib": 40,
+      "status": "Licensed texture alternative selected to reduce clean procedural surface repetition."
+    },
+    {
+      "class": "road and sidewalk",
+      "source": "bespoke geometry with ambientCG Asphalt012 road images",
+      "rights": "Original geometry. Asphalt012 images are CC0 1.0; https://docs.ambientcg.com/license/",
+      "format": "blend with packed JPG textures",
+      "estimate_mib": 9,
+      "status": "Licensed surface alternative. The 1.5 meter tile scale is inferred, not source metadata."
+    },
+    {
+      "class": "nearby vehicles",
+      "source": "bespoke simplified vehicle variants",
+      "rights": "Original construction; no brand marks.",
+      "format": "blend",
+      "estimate_mib": 10,
+      "status": "source selected"
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "selected_attempt": 23,
+  "missing_preview_attempts": [
+    4
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "image": "assets/attempt-01.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "7893456389d6b02b2d2c6ed6ceaf044f45bf7bf9dd68b989de633b9f8cfbd838"
+    },
+    {
+      "attempt": 2,
+      "image": "assets/attempt-02.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "8a1a737b39ea08869c8db0bef3064397a0c13273de73f0c0d2f083c5216a7e6f"
+    },
+    {
+      "attempt": 3,
+      "image": "assets/attempt-03.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "a809992e3d125d29ecdd88f2a792d0c87a03ce8964b18b7a1282a8f235b30d54"
+    },
+    {
+      "attempt": 5,
+      "image": "assets/attempt-05.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "8b1199c93e6b6bcbb033db8e2f26e2a73cc1f81798b0ccfaa9a2bceb144f0ef0"
+    },
+    {
+      "attempt": 6,
+      "image": "assets/attempt-06.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "755f4a775455c8128737bc804641791a063a023a92344e1083e2137fd56545bd"
+    },
+    {
+      "attempt": 7,
+      "image": "assets/attempt-07.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "acfdf18e358b0e8da6d844a46d9292d369550a0894f6995c0a27c66fa89d41da"
+    },
+    {
+      "attempt": 8,
+      "image": "assets/attempt-08.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "7e92275fddaa961c03d6566029d740cbd669519c966f04714015d4f24e11f5d5"
+    },
+    {
+      "attempt": 9,
+      "image": "assets/attempt-09.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "eea9fc6dcf7cc4404b355e7a444d584054797546ed19fc1708bd2a5331d7877a"
+    },
+    {
+      "attempt": 10,
+      "image": "assets/attempt-10.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "1fc855fa7bef22f4de06e471cc8c2288058733795e1310a054c130eb21a33f7a"
+    },
+    {
+      "attempt": 11,
+      "image": "assets/attempt-11.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "f3adf004f432e6408ae39d1ee834387d114c278b64bea7e79ea0b697c6d08593"
+    },
+    {
+      "attempt": 12,
+      "image": "assets/attempt-12.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "cf0d1e14c4b0bf63b0f78c47966c8bbe7af67927c18c33f8461eb37cd45d5397"
+    },
+    {
+      "attempt": 13,
+      "image": "assets/attempt-13.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "ebb3dd3d5a560b4cdf8bc2880e1aa2022311789a58fe89d021743aedc4272332"
+    },
+    {
+      "attempt": 14,
+      "image": "assets/attempt-14.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "d9425df565daac859d1ab373d28e9c8c73314d0c802d79773f4ff42fe3b1c3d2"
+    },
+    {
+      "attempt": 15,
+      "image": "assets/attempt-15.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "2375f0606c3b3627daad0d2c592e2c48045a4d90a6da5605f97feecf670d4372"
+    },
+    {
+      "attempt": 16,
+      "image": "assets/attempt-16.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "034eb887888a7f94ae8a3634956199e9ce08b16538d16973c190d06eda694946"
+    },
+    {
+      "attempt": 17,
+      "image": "assets/attempt-17.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "4757fc71af71e2bba3be74050c2d940283b3aa86693993a5da625777f8f18202"
+    },
+    {
+      "attempt": 18,
+      "image": "assets/attempt-18.jpg",
+      "note": "Earlier parked vehicle geometry retained as the final baseline.",
+      "sha256": "bd83fb2325c303c9430dde2da364006ca1bff4c9bc4b9672ecff122c40ae7292"
+    },
+    {
+      "attempt": 19,
+      "image": "assets/attempt-19.jpg",
+      "note": "Earlier development preview.",
+      "sha256": "584485de9f552026738e20f3eb2dba1797e760b14df3cbbfd30c5d49486b18cc"
+    },
+    {
+      "attempt": 20,
+      "image": "assets/attempt-20.jpg",
+      "note": "Window design B was retained. The revised minivan body was not retained.",
+      "sha256": "7ea4f01557f5c917381e4f17aad2d35f0b6072f705cbde823d2404a15258f6fc"
+    },
+    {
+      "attempt": 21,
+      "image": "assets/attempt-21.jpg",
+      "note": "A later minivan experiment that was not selected.",
+      "sha256": "59fdc62de6694984e5eb77c5c75e8276097a1a91765a8282097a385dda5c2cf7"
+    },
+    {
+      "attempt": 22,
+      "image": "assets/attempt-22.jpg",
+      "note": "A later geometry experiment that was not selected.",
+      "sha256": "92793c22ac9cae59799ed73787e9298fa58d60569a5606d18512d0dc87c8e19a"
+    },
+    {
+      "attempt": 23,
+      "image": "assets/attempt-23.jpg",
+      "note": "Selected final design. Improved hero car and window B, with earlier parked geometry.",
+      "sha256": "63fc505d5436d0dadfbee7241598ff68e39b52b0d36adc2e7b08b9b04adee844"
+    }
+  ]
+}
