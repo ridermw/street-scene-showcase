@@ -193,6 +193,9 @@ test('stale approval and copy failure cannot produce a successful publication', 
     await writeFile(path.join(bundle, 'viewer.js'), 'console.log("fixture")');
     await writeFile(path.join(bundle, 'viewer.css'), 'canvas{display:block}');
     await stageCandidate(assets, bundle, site);
+    for (const file of ['index.html', 'concept.html', 'attempts.html']) {
+      assert.match(await readFile(path.join(site, file), 'utf8'), /href="interactive\/index.html"/);
+    }
     const candidate = { site, settings: { times: [0, 2.5, 119 / 24] },
       sourceSceneSha256: 'a'.repeat(64), sourceFrameHashes: ['b'.repeat(64), 'c'.repeat(64), 'd'.repeat(64)] };
     const identity = await computeReviewIdentity(candidate);
@@ -221,6 +224,10 @@ test('stale approval and copy failure cannot produce a successful publication', 
     await assert.rejects(checkPublication(site), /Combined JavaScript/);
     await rm(path.join(site, 'interactive/assets/lazy.js'));
     await writeFile(path.join(site, 'interactive/assets/viewer.js'), 'console.log("fixture")');
+    const html = await readFile(path.join(site, 'interactive/index.html'), 'utf8');
+    await writeFile(path.join(site, 'interactive/index.html'), html.replace('./assets/viewer.js', './assets/missing.js'));
+    await assert.rejects(checkPublication(site), /ENOENT|link/);
+    await writeFile(path.join(site, 'interactive/index.html'), html);
     await symlink(path.join(root, 'asset'), path.join(site, 'escape'));
     await assert.rejects(preparePreview(site, path.join(root, 'bad-preview')), /Symlink/);
   } finally { await rm(root, { recursive: true }); }

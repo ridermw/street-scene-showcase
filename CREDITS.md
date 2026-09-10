@@ -56,5 +56,10 @@ The developing viewer uses Three.js and its bundled Meshopt decoder. A complete
 release must include their applicable license notices with the approved bundle.
 The sky/ground lighting environment is generated procedurally in the viewer;
 no external HDRI or reference imagery is distributed.
+The frozen candidate has passed the technical browser and desktop performance
+gates. Hash-verified Blender comparisons and the full browser motion recording
+remain private review evidence, not public assets or visual acceptance.
+Absent indirect/contact lighting, different reflections and paint highlights,
+flat sky/contrast, and shadow aliasing/coverage remain unaccepted differences.
 No interactive model, derived texture package, or reference comparison media has
 been published yet.

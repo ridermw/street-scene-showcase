@@ -6,6 +6,7 @@
   "engines": { "node": ">=22.23.1 <23" },
   "scripts": {
     "test:unit": "node --test tests/web/*.test.mjs",
+    "test:browser": "playwright test",
     "build": "vite build",
     "prepare:asset": "node tools/prepare-web-asset.mjs",
     "check": "node tools/check-publication.mjs",

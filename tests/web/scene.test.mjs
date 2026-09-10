@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   AnimationClip, DirectionalLight, Group, PerspectiveCamera,
   Quaternion, QuaternionKeyframeTrack, Vector3, VectorKeyframeTrack,
+  BufferGeometry, DataTexture, Mesh, MeshStandardMaterial,
 } from 'three';
 import { createSceneBundle, inspectGlb } from '../../web/scene.js';
 import { manifestFixture } from './fixtures.mjs';
@@ -90,4 +91,20 @@ test('rejects missing, mistimed, nonfinite or discontinuous motion tracks', () =
     mutate(gltf);
     assert.throws(() => createSceneBundle(gltf, manifest), /motion|sample|continuity|track/i);
   }
+});
+
+test('bundle disposal releases shared geometry, materials and textures only once', () => {
+  const { gltf, manifest } = fixture();
+  const geometry = new BufferGeometry();
+  const texture = new DataTexture(new Uint8Array([255, 255, 255, 255]), 1, 1);
+  const material = new MeshStandardMaterial({ map: texture });
+  gltf.scene.add(new Mesh(geometry, material), new Mesh(geometry, material));
+  const released = { geometry: 0, material: 0, texture: 0 };
+  geometry.addEventListener('dispose', () => released.geometry++);
+  material.addEventListener('dispose', () => released.material++);
+  texture.addEventListener('dispose', () => released.texture++);
+  const bundle = createSceneBundle(gltf, manifest);
+  bundle.dispose();
+  bundle.dispose();
+  assert.deepEqual(released, { geometry: 1, material: 1, texture: 1 });
 });

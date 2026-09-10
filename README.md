@@ -92,13 +92,13 @@ Two clean corrected exports have identical GLB and derived-image hashes.
 
 The corrected raw GLB is approximately 54.5 MiB, above the final 30 MiB package limit.
 Lossless mesh compression, compatible resource deduplication and pixel-exact
-PNG storage conversion now produce a validated **30,748,605-byte scene package**
+PNG storage conversion now produce a validated **30,748,589-byte scene package**
 (29.32 MiB), including its manifest and runtime notices. Two preparations match.
 It retains 286 logical geometry objects and 932,272 triangles, with 53 compatible
 materials and seven images. All original named nodes remain; no geometry batching,
 precision reduction, filtering, decimation or texture downscaling was needed.
 The package bounds main-pass draws at 288; the browser anchors measured 287,
-284 and 275 calls. The initial complete viewer bundle is 176,988 bytes gzip.
+284 and 275 calls. The complete viewer JavaScript is 185,416 bytes gzip.
 
 `tools/optimize_png.py` implements the tested storage conversion using the
 existing Pillow dependency. It uses exact palette indices only for images with
@@ -123,11 +123,48 @@ Lighting now uses a correctly oriented low-resolution procedural canyon
 environment and fixed shadow coverage over the full motion, without moving the
 authored sun or adding a rendered light. The background and exposure are calibrated
 separately. Exact-size captures and control checks pass in WebKit and hardware-backed
-Chromium on the local Apple M4 Pro. This is not a performance acceptance claim.
-Compared with Cycles, indirect contact shadows remain absent, reflections and
-paint highlights differ, and shadow softness and contrast are approximate.
-These differences have not been visually accepted. Full browser fault injection,
-performance measurements, visual approval and publication remain outstanding.
+Chromium on the local Apple M4 Pro.
+
+The frozen candidate passes 48 browser cases across Chromium and WebKit.
+Two intentional WebKit skips avoid duplicating the hardware benchmark and motion
+recording; WebKit still runs all correctness cases. Fault injection covers missing
+and stalled modules/assets/bodies, invalid model data, decoding and texture failure,
+late bitmap disposal, unavailable WebGL and context loss. No-JavaScript and failed
+startup both expose the preserved video without an empty scene blocking the page.
+Mobile emulation tests exercise portrait/landscape layouts and DPR caps, not phone
+hardware performance. WebKit's native media-placard icon errors also reproduce
+on the unchanged video page under mobile emulation. Only that exact native
+signature is classified and retained as a warning in those layout cases; other
+console errors remain failures.
+
+On September 10, 2026, Chromium `153.0.8010.12` using ANGLE Metal on an Apple M4 Pro
+passed three warmed full-playback cycles at a 1280 by 720 CSS canvas, DPR 1.5 and
+1920 by 1080 backing buffer. Cold startup was 391.8 ms, measured separately.
+
+| Run | Completed frames / samples | FPS | Median / p95 / worst interval |
+|---|---|---|---|
+| 1 | 302 / 302 | 60.040 | 16.7 / 17.6 / 20.0 ms |
+| 2 | 302 / 302 | 60.035 | 16.7 / 17.5 / 20.3 ms |
+| 3 | 302 / 302 | 60.036 | 16.7 / 17.6 / 19.2 ms |
+
+Each run stayed below 300 main-pass calls (maximum 287); shadow-pass maximum was
+263. Counts remained stable at 246 geometries, 11 textures and five programs
+through repeated restart and inspection. The browser reports 45,372,116 unique
+geometry-buffer bytes and estimates 55,924,058 texture bytes, 344,064 environment
+bytes and 33,554,432 shadow-target bytes. These are resource counters and estimates,
+not exact total browser or GPU memory. Node's decoded accessor inventory also
+includes animation data and totals 45,377,396 bytes.
+
+Private, source-hash-verified 1920 by 1080 start/middle/end comparisons and a complete
+motion/restart recording are retained with the exact candidate identity.
+The chronological review covers all 205 recorded frames at 25 fps; it does not
+replace the separately measured rendering throughput or explicit visual approval.
+Compared with Cycles, absent indirect/contact shadows make vehicles look less
+grounded, paint highlights/reflections are weaker or different, and the sky and
+contrast are flatter. Shadow aliasing and reduced distant shadow coverage remain.
+Finite-resolution bump and carbon conversion also remain approximations.
+These differences are **not visually accepted**. Publication is blocked pending
+explicit acceptance of this exact candidate or a decision to improve it.
 
 `configs/gltf-export.example.json` is deliberately inactive. Before export or
 material baking, obtain a new bounded allowance and save the active configuration
@@ -174,6 +211,27 @@ python3 -m pipeline.job --config "$EXPORT_CONFIG" --log prepare-asset.log -- \
   npm run prepare:asset -- --input "$RAW_GLB" --manifest "$RAW_MANIFEST" --output "$ASSET_CANDIDATE"
 npm run check -- --site "$CANDIDATE_SITE"
 ```
+
+Prepare the curated prefix fixture with the existing preview helper, then run
+the browser suite against its loopback server in a second terminal. Choose
+`BROWSER_OUTPUT` inside task-owned staging; reports must not go into the public site.
+`WEBKIT_EXECUTABLE` can select an already installed task-owned WebKit runtime.
+An absent runtime must be installed before its browser cases can pass.
+
+```sh
+npm run preview -- --site "$CANDIDATE_SITE"
+BROWSER_OUTPUT="$BROWSER_REPORTS" \
+  python3 -m pipeline.job --config "$EXPORT_CONFIG" --log browser-check.log -- \
+  npm run test:browser
+PUBLICATION_SITE="$CANDIDATE_SITE" python3 -m unittest discover -s tests -p test_publication.py
+```
+
+The default Python suite intentionally skips generated-release checks while
+`docs` has no published model; the explicit staged-site run requires every file.
+The preview helper serves only its curated copy, never the repository or raw export
+root. Browser tests require full hardware-backed Chromium for the performance gate,
+not a software-rendered headless shell. A passing build or a resource allowance is
+not visual approval and does not authorize copying generated files into `docs`.
 
 The public checker accounts for the complete scene package and every generated
 JavaScript chunk together. It explicitly reports the Khronos validator's lack of

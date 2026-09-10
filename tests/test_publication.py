@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import unittest
 from html.parser import HTMLParser
 from pathlib import Path
@@ -7,7 +8,7 @@ from urllib.parse import unquote, urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SITE = ROOT / "docs"
+SITE = Path(os.environ.get("PUBLICATION_SITE", ROOT / "docs")).resolve()
 
 
 class Links(HTMLParser):
@@ -26,8 +27,8 @@ class Links(HTMLParser):
 
 
 class PublicationTests(unittest.TestCase):
-    def test_public_pages_have_resolvable_links_and_image_descriptions(self):
-        for name in ("index.html", "concept.html", "attempts.html"):
+    def check_pages(self, names):
+        for name in names:
             path = SITE / name
             self.assertTrue(path.is_file(), f"Missing public page: {name}")
             parser = Links()
@@ -45,7 +46,26 @@ class PublicationTests(unittest.TestCase):
                 self.assertFalse(parts.netloc, url)
                 target = (path.parent / unquote(parts.path)).resolve()
                 self.assertTrue(target.is_relative_to(SITE), url)
+                if target.is_dir():
+                    target = target / "index.html"
                 self.assertTrue(target.is_file(), url)
+
+    def test_public_pages_have_resolvable_links_and_image_descriptions(self):
+        self.check_pages(("index.html", "concept.html", "attempts.html"))
+
+    def test_complete_interactive_candidate_preserves_navigation_and_local_links(self):
+        manifest = SITE / "assets" / "interactive" / "scene-manifest.json"
+        if not manifest.is_file() and "PUBLICATION_SITE" not in os.environ:
+            self.skipTest("Generated release is not published; validate its staged PUBLICATION_SITE")
+        self.assertTrue(manifest.is_file(), "Incomplete interactive candidate")
+        self.check_pages(("interactive/index.html",))
+        for name in ("index.html", "concept.html", "attempts.html"):
+            parser = Links()
+            parser.feed((SITE / name).read_text())
+            self.assertIn("interactive/index.html", parser.urls)
+        metadata = json.loads(manifest.read_text())
+        asset = manifest.parent / metadata["asset"]["file"]
+        self.assertEqual(hashlib.sha256(asset.read_bytes()).hexdigest(), metadata["asset"]["sha256"])
 
     def test_gallery_accounts_for_the_retained_attempts(self):
         path = SITE / "attempts.json"

@@ -188,6 +188,16 @@ export async function stageCandidate(assetDirectory, bundleDirectory, destinatio
     await mkdir(path.dirname(target), { recursive: true });
     await copyFile(source, target);
   }
+  for (const file of ['index.html', 'concept.html', 'attempts.html']) {
+    const target = path.join(destination, file);
+    let html = await readFile(target, 'utf8');
+    if (!html.includes('href="interactive/index.html"')) {
+      if ((html.match(/<\/nav>/g) ?? []).length !== 1) throw new Error('Expected one historical navigation');
+      html = html.replace('</nav>', '  <a href="interactive/index.html">Interactive scene</a>\n</nav>');
+    }
+    if (!html.includes('rel="icon"')) html = html.replace('</head>', '  <link rel="icon" href="assets/final.jpg" type="image/jpeg">\n</head>');
+    await writeFile(target, html);
+  }
   await checkPublication(destination);
   return destination;
 }

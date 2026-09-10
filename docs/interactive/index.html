@@ -21,10 +21,10 @@
   <h1>Attempt 23, in motion.</h1>
   <p>The selected original scene, interpreted in real time. The rendered film remains the visual reference.</p>
   <p><a href="../index.html">Watch the rendered version</a></p>
-  <p id="scene-status" role="status" aria-live="polite">Loading the interactive scene...</p>
-  <div id="scene-viewport"><canvas id="scene-canvas" tabindex="0" aria-label="Animated street scene" aria-describedby="inspection-help"></canvas></div>
+  <p id="scene-status" role="status" aria-live="polite">The rendered version is available below.</p>
+  <div id="scene-viewport" hidden><canvas id="scene-canvas" tabindex="0" aria-label="Animated street scene" aria-describedby="inspection-help"></canvas></div>
   <p id="inspection-help" hidden>Drag to orbit, scroll or pinch to zoom, and use arrow keys to pan. Escape returns to the authored camera.</p>
-  <div class="viewer-controls">
+  <div class="viewer-controls" hidden>
     <button id="play" disabled>Play</button>
     <button id="restart" disabled>Restart</button>
     <button id="inspect" disabled aria-pressed="false">Inspect scene</button>
@@ -46,6 +46,10 @@
   const listeners = new Set();
   const status = document.querySelector('#scene-status');
   const fallback = document.querySelector('#video-fallback');
+  const viewport = document.querySelector('#scene-viewport');
+  viewport.hidden = false;
+  document.querySelector('.viewer-controls').hidden = false;
+  status.textContent = 'Loading the interactive scene...';
   const timer = setTimeout(() => fail(new Error('Interactive startup timed out after 120 seconds')), 120000);
   function fail(error) {
     if (phase === 'failed') return;
@@ -61,6 +65,7 @@
     reload.hidden = false;
     reload.disabled = false;
     status.textContent = 'The interactive scene could not start or was interrupted. Watch the rendered version, or reload.';
+    viewport.hidden = true;
     fallback.hidden = false;
   }
   window.__streetSceneBoot = Object.freeze({

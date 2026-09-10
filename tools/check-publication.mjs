@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { lstat, readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import { NodeIO, VertexLayout } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
@@ -333,6 +333,23 @@ export async function checkPublication(site) {
     }
   }
   for (const file of allowed) await lstat(path.join(site, file));
+  for (const file of ['index.html', 'concept.html', 'attempts.html', 'interactive/index.html']) {
+    const html = await readFile(path.join(site, file), 'utf8');
+    if (!file.startsWith('interactive/')) {
+      requireValue(html.includes('href="interactive/index.html"'), 'Interactive navigation is missing');
+    }
+    for (const [, reference] of html.matchAll(/\b(?:href|src|poster)=["']([^"']+)["']/g)) {
+      const url = new URL(reference, pathToFileURL(path.resolve(site, file)));
+      if (url.protocol === 'https:') continue;
+      requireValue(url.protocol === 'file:', 'Unsupported public link protocol');
+      let target = fileURLToPath(url);
+      const relative = path.relative(path.resolve(site), target);
+      requireValue(relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative),
+        'Public link escapes the curated site');
+      if ((await lstat(target)).isDirectory()) target = path.join(target, 'index.html');
+      requireValue((await lstat(target)).isFile(), 'Public link is not a file');
+    }
+  }
   requireValue(scriptCount > 0 && cssCount > 0, 'Viewer bundle is missing');
   requireValue(bundleGzipBytes <= manifest.limits.bundleGzipBytes, 'Combined JavaScript gzip budget exceeded');
   requireValue(hash(await readFile(path.join(site, 'assets/street-scene-attempt-23.mp4'))) === VIDEO_SHA256,
