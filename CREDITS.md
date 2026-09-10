@@ -54,5 +54,7 @@ distributed. Vehicle and building geometry remains original procedural work.
 
 The developing viewer uses Three.js and its bundled Meshopt decoder. A complete
 release must include their applicable license notices with the approved bundle.
+The sky/ground lighting environment is generated procedurally in the viewer;
+no external HDRI or reference imagery is distributed.
 No interactive model, derived texture package, or reference comparison media has
 been published yet.

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="An interactive interpretation of the selected original Blender street scene.">
   <title>Interactive scene | Attempt 23</title>
+  <link rel="icon" href="../assets/final.jpg" type="image/jpeg">
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="./assets/viewer.css">
 </head>
@@ -21,7 +22,8 @@
   <p>The selected original scene, interpreted in real time. The rendered film remains the visual reference.</p>
   <p><a href="../index.html">Watch the rendered version</a></p>
   <p id="scene-status" role="status" aria-live="polite">Loading the interactive scene...</p>
-  <div id="scene-viewport"><canvas id="scene-canvas" aria-label="Animated street scene"></canvas></div>
+  <div id="scene-viewport"><canvas id="scene-canvas" tabindex="0" aria-label="Animated street scene" aria-describedby="inspection-help"></canvas></div>
+  <p id="inspection-help" hidden>Drag to orbit, scroll or pinch to zoom, and use arrow keys to pan. Escape returns to the authored camera.</p>
   <div class="viewer-controls">
     <button id="play" disabled>Play</button>
     <button id="restart" disabled>Restart</button>
@@ -51,7 +53,9 @@
     clearTimeout(timer);
     controller.abort(error);
     console.error(error);
-    for (const listener of listeners) listener();
+    for (const listener of listeners) {
+      try { listener(); } catch (cleanupError) { console.error('Scene cleanup failed', cleanupError); }
+    }
     document.querySelectorAll('.viewer-controls button').forEach(button => { button.disabled = true; });
     const reload = document.querySelector('#reload');
     reload.hidden = false;

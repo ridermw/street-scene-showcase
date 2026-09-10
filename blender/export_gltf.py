@@ -178,12 +178,12 @@ def export(source, output, config):
                      "wheelRadians": -17.5 / 0.36},
         "lighting": {
             "sunDirection": [direction.x, direction.z, -direction.y],
-            "sunIntensity": 6, "environmentIntensity": 0.7,
-            "skyColor": [0.5, 0.65, 0.9], "groundColor": [0.12, 0.1, 0.08],
-            "background": [0.208, 0.336, 0.512], "exposure": 2 ** 0.3,
+            "sunIntensity": 6, "environmentIntensity": 0.22,
+            "skyColor": [1.0, 1.5, 2.2], "groundColor": [0.006, 0.009, 0.015],
+            "background": [0.3, 0.4, 0.48], "exposure": 0.95,
             "shadow": {"mapSize": 2048, "mobileMapSize": 1024,
                        "bounds": [-28, 28, -40, 40, 0.1, 150],
-                       "bias": -0.0001, "normalBias": 0.025}},
+                       "bias": -0.00002, "normalBias": 0.006}},
         "materials": material_record["materials"],
         "statistics": {
             "triangles": triangles, "materials": len(document["materials"]),

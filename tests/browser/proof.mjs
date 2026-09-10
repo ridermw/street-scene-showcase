@@ -1,18 +1,22 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { chromium } from '@playwright/test';
+import { chromium, webkit } from '@playwright/test';
 
 if (!process.env.PROOF_OUTPUT) throw new Error('Set PROOF_OUTPUT to private task-owned staging');
 const output = path.resolve(process.env.PROOF_OUTPUT);
 await mkdir(output, { recursive: true });
 const origin = process.env.PROOF_ORIGIN ?? 'http://127.0.0.1:4173';
-const browser = await chromium.launch({ headless: true });
+const engine = process.env.PROOF_ENGINE === 'webkit' ? webkit : chromium;
+const browser = await engine.launch({ headless: true,
+  ...(process.env.PROOF_ENGINE === 'webkit' ? { executablePath: process.env.WEBKIT_EXECUTABLE }
+    : process.env.PROOF_HARDWARE === '1' ? { channel: 'chromium', args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] } : {}),
+});
 try {
   const page = await browser.newPage({ viewport: { width: 1920, height: 1400 }, deviceScaleFactor: 1 });
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  page.on('console', message => { if (message.type() === 'error') errors.push(`${message.text()} [${message.location().url}]`); });
   page.on('requestfailed', request => errors.push(`${request.url()}: ${request.failure()?.errorText}`));
   const start = performance.now();
   await page.goto(`${origin}/street-scene-showcase/interactive/?capture=1`);
@@ -56,6 +60,29 @@ try {
       assert.ok(sampled[key].every((value, index) => Math.abs(value - anchor[key][index]) < 1e-6),
         `${key} failed backward/final-hold sampling at ${seconds}`);
     }
+    await page.locator('#play').click();
+    await page.waitForFunction(() => window.__streetSceneCapture.snapshot().seconds > 0.05);
+    await page.locator('#inspect').click();
+    const inspected = await page.evaluate(() => window.__streetSceneCapture.snapshot());
+    assert.equal(inspected.mode, 'inspection');
+    assert.equal(inspected.transport, 'paused');
+    assert.equal(await page.locator('#play').isDisabled(), true);
+    assert.equal(await page.locator('#restart').isDisabled(), true);
+    await page.keyboard.press('Escape');
+    const restored = await page.evaluate(() => window.__streetSceneCapture.snapshot());
+    assert.equal(restored.mode, 'authored');
+    assert.equal(restored.transport, 'paused');
+    assert.equal(restored.seconds, inspected.seconds);
+    await page.evaluate(() => window.__streetSceneCapture.seek(5));
+    await page.locator('#inspect').click();
+    await page.locator('#inspect').click();
+    assert.equal(await page.evaluate(() => window.__streetSceneCapture.snapshot().transport), 'ended');
+    await page.locator('#restart').click();
+    await page.waitForFunction(() => window.__streetSceneCapture.snapshot().transport === 'playing');
+    await page.locator('#play').click();
+    const paused = await page.evaluate(() => window.__streetSceneCapture.snapshot());
+    assert.equal(paused.transport, 'paused');
+    assert.ok(paused.seconds < 5);
     for (const name of Object.keys(anchor.wheelRotations)) {
       assert.ok(sampled.wheelRotations[name].every((value, index) =>
         Math.abs(value - anchor.wheelRotations[name][index]) < 1e-6));

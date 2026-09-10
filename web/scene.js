@@ -219,6 +219,21 @@ export async function loadScene(manifestUrl, { signal } = {}) {
   const gltf = await loader.parseAsync(buffer, '');
   metrics.decodeMs = performance.now() - decodeStart;
   try {
+    const textures = await Promise.all((json.textures ?? []).map((_, i) => gltf.parser.getDependency('texture', i)));
+    if (textures.some(texture => !texture?.source?.data?.width || !texture.source.data.height)) {
+      throw new Error('Embedded texture failed to decode');
+    }
+    const images = new Set(textures.map(texture => texture.source.data));
+    if (images.size !== manifest.statistics.images) throw new Error('Decoded image inventory mismatch');
+    metrics.estimatedTextureBytes = [...images].reduce((total, image) => total + Math.ceil(image.width * image.height * 4 * 4 / 3), 0);
+    const buffers = new Set();
+    gltf.scene.traverse(node => {
+      if (!node.geometry) return;
+      for (const attribute of [...Object.values(node.geometry.attributes), node.geometry.index].filter(Boolean)) {
+        buffers.add((attribute.isInterleavedBufferAttribute ? attribute.data.array : attribute.array).buffer);
+      }
+    });
+    metrics.decodedGeometryBytes = [...buffers].reduce((total, buffer) => total + buffer.byteLength, 0);
     signal?.throwIfAborted();
     const bundle = createSceneBundle(gltf, manifest);
     return Object.assign(bundle, { metrics });

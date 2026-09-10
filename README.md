@@ -112,19 +112,22 @@ continuity, provenance, metadata, resource budgets, stale approval and incomplet
 publication copies. Portable review identity includes all candidate files and
 canonical capture settings; relocation does not change it.
 
-The initial browser proof loads beneath the production site prefix and captures
-exact 1920 by 1080 frames. It is not a release candidate: shaded surfaces are too
-bright, reflections differ substantially, and shadows require calibration.
-The initial browser used software rendering, so it establishes no hardware
-performance result. Playback and inspection controls,
-failure-path coverage, final visual
-approval, and publication remain outstanding.
-
-The deterministic playback clock is implemented independently of rendering:
-start paused, one five-second run, final hold, pause/resume and immediate restart.
+The integrated viewer has one playback/render loop, accessible Play/Pause,
+Restart and inspection controls, a separate orbit camera, hidden-tab pausing,
+responsive 16:9 sizing and bounded DPR. It restores the authored camera and
+paused time after inspection, including the ended state. Startup and failure
+use the independent HTML deadline and video fallback; recovery is a full reload.
 Node and browser consumers share the same six-channel motion validation.
-Real-model browser checks also exercise final hold and backward seeks after end.
-The page controls and continuous render-loop integration are the next step.
+
+Lighting now uses a correctly oriented low-resolution procedural canyon
+environment and fixed shadow coverage over the full motion, without moving the
+authored sun or adding a rendered light. The background and exposure are calibrated
+separately. Exact-size captures and control checks pass in WebKit and hardware-backed
+Chromium on the local Apple M4 Pro. This is not a performance acceptance claim.
+Compared with Cycles, indirect contact shadows remain absent, reflections and
+paint highlights differ, and shadow softness and contrast are approximate.
+These differences have not been visually accepted. Full browser fault injection,
+performance measurements, visual approval and publication remain outstanding.
 
 `configs/gltf-export.example.json` is deliberately inactive. Before export or
 material baking, obtain a new bounded allowance and save the active configuration
