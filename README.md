@@ -91,12 +91,14 @@ on both source and reimported geometry. Additions and omissions are rejected.
 Two clean corrected exports have identical GLB and derived-image hashes.
 
 The corrected raw GLB is approximately 54.5 MiB, above the final 30 MiB package limit.
-Initial lossless mesh compression and resource deduplication produce a
-32,605,113-byte scene package, still over that limit. A diagnostic safe-sibling
-batching experiment saved only about 55 KB, so it has not been adopted.
-An image-only probe found about 1.86 MB of additional lossless PNG savings,
-with identical dimensions and every decoded RGBA pixel checked. This is enough
-projected savings, not a verified complete package result.
+Lossless mesh compression, compatible resource deduplication and pixel-exact
+PNG storage conversion now produce a validated **30,748,605-byte scene package**
+(29.32 MiB), including its manifest and runtime notices. Two preparations match.
+It retains 286 logical geometry objects and 932,272 triangles, with 53 compatible
+materials and seven images. All original named nodes remain; no geometry batching,
+precision reduction, filtering, decimation or texture downscaling was needed.
+The package bounds main-pass draws at 288; the browser anchors measured 287,
+284 and 275 calls. The initial complete viewer bundle is 176,988 bytes gzip.
 
 `tools/optimize_png.py` implements the tested storage conversion using the
 existing Pillow dependency. It uses exact palette indices only for images with
@@ -104,15 +106,17 @@ at most 256 distinct opaque colors; it does not reduce the color count, change
 pixels, or downscale. Other images retain full color and alpha. It preserves
 standard color-space chunks and removes descriptive metadata; embedded ICC
 profiles require separate review and are rejected. JPEGs are not recompressed.
-The complete candidate build was stopped by the resource supervisor when the
-approved allowance expired. Packaging integration and actual compressed-model
-browser verification require a fresh bounded allowance.
+The actual compressed model loads through the bundled decoder under the production
+prefix. Rejection tests cover malformed buffers, roles, projection, animation
+continuity, provenance, metadata, resource budgets, stale approval and incomplete
+publication copies. Portable review identity includes all candidate files and
+canonical capture settings; relocation does not change it.
 
 The initial browser proof loads beneath the production site prefix and captures
 exact 1920 by 1080 frames. It is not a release candidate: shaded surfaces are too
 bright, reflections differ substantially, and shadows require calibration.
 The initial browser used software rendering, so it establishes no hardware
-performance result. Lossless asset preparation, playback and inspection controls,
+performance result. Playback and inspection controls,
 failure-path coverage, final visual
 approval, and publication remain outstanding.
 
@@ -153,6 +157,19 @@ npm ci
 npm run test:unit
 npm run build -- --outDir "$CANDIDATE_SITE/interactive/assets"
 ```
+
+Prepare and validate a private scene package under the same active supervisor:
+
+```sh
+python3 -m pipeline.job --config "$EXPORT_CONFIG" --log prepare-asset.log -- \
+  npm run prepare:asset -- --input "$RAW_GLB" --manifest "$RAW_MANIFEST" --output "$ASSET_CANDIDATE"
+npm run check -- --site "$CANDIDATE_SITE"
+```
+
+The public checker accounts for the complete scene package and every generated
+JavaScript chunk together. It explicitly reports the Khronos validator's lack of
+Meshopt inspection; independent decoding, exact accessor comparisons and the real
+browser loader cover that extension. Generated files remain private until approval.
 
 The isolated export requires the frozen scene's retained `scene.json` and packed
 source images. With an authorized private configuration and a new output directory:

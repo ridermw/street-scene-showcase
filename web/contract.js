@@ -11,6 +11,9 @@
  * @typedef {{assetSha256:string, phase:string, transport:string, mode:string,
  * seconds:number, rendered:boolean, cssWidth:number, cssHeight:number,
  * pixelWidth:number, pixelHeight:number, dpr:number}} CaptureSnapshot
+ * @typedef {{glbSha256:string, assetBytes:number, triangleCount:number, materialCount:number,
+ * imageCount:number, bundleGzipBytes:number, decodedGeometryBytes:number,
+ * estimatedTextureBytes:number, warnings:string[]}} AssetReport
  */
 
 function requireValue(condition, path, description) {

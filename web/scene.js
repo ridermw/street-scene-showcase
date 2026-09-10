@@ -18,17 +18,54 @@ export function inspectGlb(buffer) {
   if (size % 4 || 20 + size > buffer.byteLength) throw new Error('Invalid GLB JSON length');
   const json = JSON.parse(new TextDecoder().decode(new Uint8Array(buffer, 20, size)));
   if (json.asset?.version !== '2.0') throw new Error('Unsupported glTF version');
-  for (const extension of json.extensionsRequired ?? []) {
-    if (!extensions.has(extension)) throw new Error(`Unsupported required extension: ${extension}`);
+  for (const extension of [...json.extensionsRequired ?? [], ...json.extensionsUsed ?? []]) {
+    if (!extensions.has(extension)) throw new Error(`Unsupported extension: ${extension}`);
   }
   function visit(value) {
     if (value === null || typeof value !== 'object') return;
     for (const [key, child] of Object.entries(value)) {
       if (key === 'uri' || key === 'extras') throw new Error('External resource or extras in GLB');
+      if (key === 'extensions' && Object.keys(child).some(name => !extensions.has(name))) {
+        throw new Error('Unsupported extension payload');
+      }
       visit(child);
     }
   }
   visit(json);
+  const binaryHeader = 20 + size;
+  if (binaryHeader + 8 > buffer.byteLength || view.getUint32(binaryHeader + 4, true) !== 0x004e4942
+    || binaryHeader + 8 + view.getUint32(binaryHeader, true) !== buffer.byteLength) {
+    throw new Error('Invalid GLB binary chunk');
+  }
+  const binaryBytes = view.getUint32(binaryHeader, true);
+  const declared = json.buffers?.[0]?.byteLength;
+  if (!Number.isSafeInteger(declared) || declared < 0 || declared > binaryBytes || binaryBytes - declared > 3) {
+    throw new Error('Invalid embedded buffer length');
+  }
+  for (const [index, buffer] of json.buffers.entries()) {
+    if (index && buffer.extensions?.EXT_meshopt_compression?.fallback !== true) {
+      throw new Error('Unexpected nonembedded buffer');
+    }
+    if (!Number.isSafeInteger(buffer.byteLength) || buffer.byteLength < 0) throw new Error('Invalid buffer size');
+  }
+  for (const bufferView of json.bufferViews ?? []) {
+    const offset = bufferView.byteOffset ?? 0;
+    if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(bufferView.byteLength)
+      || bufferView.byteLength < 1 || !json.buffers[bufferView.buffer]
+      || offset + bufferView.byteLength > json.buffers[bufferView.buffer].byteLength) {
+      throw new Error('Invalid buffer view bounds');
+    }
+    const compression = bufferView.extensions?.EXT_meshopt_compression;
+    if (compression && (compression.buffer !== 0
+      || !Number.isSafeInteger(compression.byteOffset ?? 0) || (compression.byteOffset ?? 0) < 0
+      || !Number.isSafeInteger(compression.byteLength) || compression.byteLength < 1
+      || (compression.byteOffset ?? 0) + compression.byteLength > declared
+      || !Number.isSafeInteger(compression.count) || compression.count < 1
+      || !Number.isSafeInteger(compression.byteStride) || compression.byteStride < 1
+      || compression.count * compression.byteStride !== bufferView.byteLength)) {
+      throw new Error('Invalid Meshopt buffer bounds');
+    }
+  }
   for (const image of json.images ?? []) {
     if (!Number.isInteger(image.bufferView) || !['image/png', 'image/jpeg'].includes(image.mimeType)) {
       throw new Error('Missing or unsupported embedded image');
