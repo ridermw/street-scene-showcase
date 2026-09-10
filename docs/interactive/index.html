@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An interactive interpretation of the selected original Blender street scene.">
+  <title>Interactive scene | Attempt 23</title>
+  <link rel="icon" href="../assets/final.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./assets/viewer.css">
+</head>
+<body>
+<header><nav aria-label="Main navigation">
+  <a href="../index.html">Final video</a>
+  <a href="../concept.html">Concept and references</a>
+  <a href="../attempts.html">Attempts</a>
+  <a href="./" aria-current="page">Interactive scene</a>
+  <a href="../comparison.html">Side-by-side</a>
+</nav></header>
+<main>
+  <p class="eyebrow">Street study / Interactive interpretation</p>
+  <h1>Attempt 23, in motion.</h1>
+  <p>The selected original scene, interpreted in real time. The rendered film remains the visual reference.</p>
+  <p><a href="../index.html">Watch the rendered version</a></p>
+  <p id="scene-status" role="status" aria-live="polite">The rendered version is available below.</p>
+  <div id="scene-viewport" hidden><canvas id="scene-canvas" tabindex="0" aria-label="Animated street scene" aria-describedby="inspection-help"></canvas></div>
+  <p id="inspection-help" hidden>Drag to orbit, scroll or pinch to zoom, and use arrow keys to pan. Escape returns to the authored camera.</p>
+  <div class="viewer-controls" hidden>
+    <button id="play" disabled>Play</button>
+    <button id="restart" disabled>Restart</button>
+    <button id="inspect" disabled aria-pressed="false">Inspect scene</button>
+    <button id="reload" hidden onclick="location.reload()">Reload</button>
+  </div>
+  <section id="video-fallback">
+    <h2>Rendered version</h2>
+    <video controls playsinline preload="none" poster="../assets/final.jpg">
+      <source src="../assets/street-scene-attempt-23.mp4" type="video/mp4">
+      <a href="../assets/street-scene-attempt-23.mp4">Download the rendered version</a>.
+    </video>
+  </section>
+  <noscript><p>JavaScript is disabled. The rendered version above remains available.</p></noscript>
+</main>
+<script>
+(() => {
+  let phase = 'loading';
+  const controller = new AbortController();
+  const listeners = new Set();
+  const status = document.querySelector('#scene-status');
+  const fallback = document.querySelector('#video-fallback');
+  const viewport = document.querySelector('#scene-viewport');
+  viewport.hidden = false;
+  document.querySelector('.viewer-controls').hidden = false;
+  status.textContent = 'Loading the interactive scene...';
+  const timer = setTimeout(() => fail(new Error('Interactive startup timed out after 120 seconds')), 120000);
+  function fail(error) {
+    if (phase === 'failed') return;
+    phase = 'failed';
+    clearTimeout(timer);
+    controller.abort(error);
+    console.error(error);
+    for (const listener of listeners) {
+      try { listener(); } catch (cleanupError) { console.error('Scene cleanup failed', cleanupError); }
+    }
+    document.querySelectorAll('.viewer-controls button').forEach(button => { button.disabled = true; });
+    const reload = document.querySelector('#reload');
+    reload.hidden = false;
+    reload.disabled = false;
+    status.textContent = 'The interactive scene could not start or was interrupted. Watch the rendered version, or reload.';
+    viewport.hidden = true;
+    fallback.hidden = false;
+  }
+  window.__streetSceneBoot = Object.freeze({
+    get phase() { return phase; },
+    signal: controller.signal,
+    fail,
+    onFailure(listener) { listeners.add(listener); if (phase === 'failed') listener(); },
+    markReady() {
+      if (phase !== 'loading') throw new Error('Startup lifecycle is no longer loading');
+      clearTimeout(timer);
+      phase = 'ready';
+      status.textContent = 'Scene ready. Paused at the beginning.';
+      fallback.hidden = true;
+    },
+  });
+  window.addEventListener('error', event => fail(event.error || new Error('Viewer module could not load')));
+  window.addEventListener('unhandledrejection', event => fail(event.reason));
+})();
+</script>
+<script type="module" src="./assets/viewer.js" onerror="window.__streetSceneBoot.fail(new Error('Viewer module could not load'))"></script>
+</body>
+</html>

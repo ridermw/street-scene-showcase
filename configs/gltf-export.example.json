@@ -1,0 +1,23 @@
+{
+  "kind": "gltf-export",
+  "enabled": false,
+  "started_utc": null,
+  "deadline_utc": null,
+  "data_root": null,
+  "run_id": null,
+  "max_additional_bytes": null,
+  "min_free_bytes": null,
+  "max_heavy_jobs": 1,
+  "source": null,
+  "source_sha256": null,
+  "readonly_roots": [],
+  "recipe": {
+    "version": 1,
+    "brick_tile_meters": 1.05,
+    "asphalt_tile_meters": 1.5,
+    "carbon_resolution": 1024,
+    "frame_start": 1,
+    "frame_end": 120,
+    "fps": 24
+  }
+}

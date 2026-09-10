@@ -7,3 +7,8 @@ __pycache__/
 data/
 configs/street_scene.json
 /THREEJS-IMPLEMENTATION-PLAN.md
+/node_modules/
+/.threejs-staging/
+/test-results/
+/playwright-report/
+/configs/gltf-export.json

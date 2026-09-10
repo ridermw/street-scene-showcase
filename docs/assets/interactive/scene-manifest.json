@@ -1,0 +1,191 @@
+{
+  "animation": {
+    "clip": "StreetSequence",
+    "durationSeconds": 5,
+    "fps": 24,
+    "frameEnd": 120,
+    "frameStart": 1,
+    "motionEndSeconds": 4.958333333333333
+  },
+  "asset": {
+    "file": "attempt-23.cba8fd57a8335485765d76172712fddfdfb291b2b102dbfe94b31015cb09b688.glb",
+    "sha256": "cba8fd57a8335485765d76172712fddfdfb291b2b102dbfe94b31015cb09b688",
+    "bytes": 30741564
+  },
+  "design": "attempt-23",
+  "expected": {
+    "camera": {
+      "aspect": 1.7777777777777777,
+      "far": 800,
+      "near": 0.10000000149011612,
+      "projection": [
+        2.0555553436279297,
+        0,
+        0,
+        0,
+        0,
+        3.65432071685791,
+        0,
+        0,
+        0,
+        0,
+        -1.000249981880188,
+        -1,
+        0,
+        0,
+        -0.20002499222755432,
+        0
+      ],
+      "yfov": 0.5342189112628342
+    },
+    "samples": 120,
+    "travelMeters": 17.5,
+    "wheelRadians": -48.611111111111114
+  },
+  "lighting": {
+    "background": [
+      0.3,
+      0.4,
+      0.48
+    ],
+    "environmentIntensity": 0.22,
+    "exposure": 0.95,
+    "groundColor": [
+      0.006,
+      0.009,
+      0.015
+    ],
+    "shadow": {
+      "bias": -0.00002,
+      "bounds": [
+        -28,
+        28,
+        -40,
+        40,
+        0.1,
+        150
+      ],
+      "mapSize": 2048,
+      "mobileMapSize": 1024,
+      "normalBias": 0.006
+    },
+    "skyColor": [
+      1,
+      1.5,
+      2.2
+    ],
+    "sunDirection": [
+      0.5643692016601562,
+      -0.8062419295310974,
+      -0.17737334966659546
+    ],
+    "sunIntensity": 6
+  },
+  "limits": {
+    "bundleGzipBytes": 1048576,
+    "desktopDpr": 1.5,
+    "drawCalls": 300,
+    "mobileDpr": 1,
+    "sceneBytes": 31457280,
+    "triangles": 1100000
+  },
+  "materials": [
+    {
+      "approximations": [
+        "Height-derived tangent normals approximate the source bump filtering."
+      ],
+      "generatedTextures": [
+        {
+          "height": 1024,
+          "name": "Bricks059-normal",
+          "sha256": "0a8d3888ceb2170fd8aeeabc637eaa4461d00788de974dc487f803765ce908b9",
+          "usage": "normal",
+          "width": 1024
+        }
+      ],
+      "id": "Bricks059",
+      "inputHashes": {
+        "color": "22b53ec9143b348ae26ed958cdfaa8977195c8daf534dc219f72dd10f2728e7a",
+        "height": "09f231db731e774b915027cdd777f9fd361173dfcc9bd725b289e4d54b344765",
+        "roughness": "58b905709e5d42451ab5aede42b386ceb442a21f979bb308eff77336db712b84"
+      },
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "recipeVersion": 1,
+      "sourceUrl": "https://ambientcg.com/a/Bricks059",
+      "tileMeters": 1.05
+    },
+    {
+      "approximations": [
+        "Height-derived tangent normals approximate the source bump filtering."
+      ],
+      "generatedTextures": [
+        {
+          "height": 1024,
+          "name": "Asphalt012-normal",
+          "sha256": "08665cb8927641110e80da341a689e42c143723ac17bc70516c98105345e6120",
+          "usage": "normal",
+          "width": 1024
+        }
+      ],
+      "id": "Asphalt012",
+      "inputHashes": {
+        "color": "c7a142a1c12f517024d1b4c92472c700af86cfe3bfc12263c4260e414d4c2c59",
+        "height": "8d42dcc580f6f1fae061b3129f064789207284b9edf3375235e7b2d01afd598d",
+        "roughness": "0f3bdc4408c43fb8cfbef8089ea6aa9dbfbd104fcfc0ea7a63200fed79cb395c"
+      },
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "recipeVersion": 1,
+      "sourceUrl": "https://ambientcg.com/a/Asphalt012",
+      "tileMeters": 1.5
+    },
+    {
+      "approximations": [
+        "Finite atlas resolution approximates the procedural carbon weave."
+      ],
+      "generatedTextures": [
+        {
+          "height": 2048,
+          "name": "carbon-color",
+          "sha256": "091132b1d01a0a4c457890f557917f9214f7fd79476c74abf6b2cdad729bbc03",
+          "usage": "carbon",
+          "width": 2048
+        }
+      ],
+      "id": "original-carbon",
+      "inputHashes": {
+        "color": null,
+        "height": null,
+        "roughness": null
+      },
+      "license": "Original procedural work",
+      "licenseUrl": null,
+      "recipeVersion": 1,
+      "sourceUrl": "https://github.com/ridermw/street-scene-showcase",
+      "tileMeters": null
+    }
+  ],
+  "roles": {
+    "camera": "ChaseCamera",
+    "hero": "HeroCar",
+    "sun": "Sun",
+    "wheels": {
+      "frontLeft": "WheelFL",
+      "frontRight": "WheelFR",
+      "rearLeft": "WheelRL",
+      "rearRight": "WheelRR"
+    }
+  },
+  "schemaVersion": 1,
+  "sourceSceneSha256": "0e4c90b1ab5bcfb052d2f5d2c5c4628a89b5b7145f6b6e9bf399d7f31cda4d05",
+  "statistics": {
+    "geometryBytes": 45377396,
+    "images": 7,
+    "logicalObjects": 286,
+    "materials": 53,
+    "textObjects": 7,
+    "textureBytes": 7233907,
+    "triangles": 932272
+  }
+}

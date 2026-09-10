@@ -81,6 +81,11 @@ if __name__ == "__main__":
     parser.add_argument("command", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     config = json.loads(Path(args.config).read_text())
+    if config.get("kind") == "gltf-export":
+        from tools.export_contract import validate_export_job
+        validate_export_job(config)
+        if Path(args.log).name != args.log or args.log in {".", ".."}:
+            raise ValueError("Export job log must be a filename inside the supervised run")
     deadline = datetime.datetime.fromisoformat(config["deadline_utc"]).timestamp() - 300
     command = args.command[1:] if args.command[:1] == ["--"] else args.command
     print(json.dumps(run_owned(command, Path(config["data_root"]) / config["run_id"],
