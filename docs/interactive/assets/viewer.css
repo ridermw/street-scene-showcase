@@ -1,0 +1,2 @@
+#scene-viewport{aspect-ratio:16/9;background:#15191f;place-items:center;width:100%;display:grid}#scene-canvas{width:100%;height:100%;display:block}.viewer-controls{flex-wrap:wrap;gap:.65rem;margin:1rem 0;display:flex}.viewer-controls button{font:inherit;cursor:pointer;padding:.65rem 1rem}.viewer-controls button:disabled{cursor:not-allowed;opacity:.55}button:focus-visible,a:focus-visible{outline-offset:4px;outline:3px solid #e3ba73}[hidden]{display:none!important}
+/*$vite$:1*/

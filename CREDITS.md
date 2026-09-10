@@ -32,34 +32,38 @@ Color, roughness, and displacement images were used.
 Brick scale is 1.05 meters. Asphalt scale is an inferred 1.5 meters.
 The displayed renders and final video come from this scene.
 
-## Interactive conversion (in development)
+## Interactive conversion and comparisons
 
 The export code derives tangent-space normal maps from the retained CC0 height
 images and converts world-space brick/asphalt projection to tiled UV coordinates.
 It bakes only the original procedural carbon base color. The initial atlas was
 1024 by 1024; the current candidate uses 2048 by 2048 to retain more weave detail.
 These conversions approximate source bump filtering and procedural detail; their
-appearance has not been approved for publication.
+appearance was approved for publication with the documented limitations on
+September 10, 2026.
 
 Lossless PNG storage conversion is implemented separately from material
 conversion. It preserves image dimensions and decoded RGBA pixels, using exact
 palette indices where possible and retaining standard color-space metadata. Descriptive
 image metadata is omitted. Original JPEG texture bytes are not recompressed.
 The complete compressed package passes technical validation and includes the
-Three.js and meshoptimizer MIT license texts. Its appearance is not yet approved.
+Three.js and meshoptimizer MIT license texts.
 
 The seven text objects are converted to geometry from Blender's built-in Bfont:
 one fictional `MARKET` sign and six fictional `SCN 018` plates. No font files are
 distributed. Vehicle and building geometry remains original procedural work.
 
-The developing viewer uses Three.js and its bundled Meshopt decoder. A complete
-release must include their applicable license notices with the approved bundle.
+The viewer uses Three.js and its bundled Meshopt decoder. Their full license
+notices are included in `docs/assets/interactive/THIRD_PARTY_NOTICES.txt`.
 The sky/ground lighting environment is generated procedurally in the viewer;
 no external HDRI or reference imagery is distributed.
 The frozen candidate has passed the technical browser and desktop performance
-gates. Hash-verified Blender comparisons and the full browser motion recording
-remain private review evidence, not public assets or visual acceptance.
+gates. The public side-by-side page includes the same approved labeled Blender
+renders, interactive captures and full browser motion recording. These are images
+of the original procedural scene, not frames from the external reference video.
+Private paths, source records, intermediate diagnostics and review logs are excluded.
 Absent indirect/contact lighting, different reflections and paint highlights,
-flat sky/contrast, and shadow aliasing/coverage remain unaccepted differences.
-No interactive model, derived texture package, or reference comparison media has
-been published yet.
+flat sky/contrast, and shadow aliasing/coverage remain visible differences accepted
+for this interpretation. The public GLB embeds the derived texture package.
+No external reference frames, reference clips, font files or private source archive
+are distributed.

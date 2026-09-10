@@ -311,14 +311,22 @@ export const historicalFiles = [
     .map(n => `assets/attempt-${String(n).padStart(2, '0')}.jpg`),
 ];
 
+export const comparisonFiles = [
+  'comparison.html', 'assets/comparison/motion-and-restart.mp4',
+  ...[1, 61, 120].flatMap(frame => ['A', 'B'].map(label =>
+    `assets/comparison/frame-${String(frame).padStart(3, '0')}-${label}.jpg`)),
+];
+
 export async function checkPublication(site) {
   const report = await validateWebAsset(path.join(site, 'assets/interactive'));
   const manifest = JSON.parse(await readFile(path.join(site, 'assets/interactive/scene-manifest.json')));
-  const allowed = new Set([...historicalFiles, 'interactive/index.html',
+  const files = await walkFiles(site);
+  const hasComparison = files.includes('comparison.html');
+  const allowed = new Set([...historicalFiles, ...(hasComparison ? comparisonFiles : []), 'interactive/index.html',
     'assets/interactive/scene-manifest.json', 'assets/interactive/THIRD_PARTY_NOTICES.txt',
     `assets/interactive/${manifest.asset.file}`]);
   let bundleGzipBytes = 0, scriptCount = 0, cssCount = 0;
-  for (const file of await walkFiles(site)) {
+  for (const file of files) {
     const bytes = await readFile(path.join(site, file));
     if (/^interactive\/assets\/[A-Za-z0-9_-]+\.js$/.test(file)) {
       bundleGzipBytes += gzipSync(bytes, { level: 9 }).length;
@@ -333,10 +341,15 @@ export async function checkPublication(site) {
     }
   }
   for (const file of allowed) await lstat(path.join(site, file));
-  for (const file of ['index.html', 'concept.html', 'attempts.html', 'interactive/index.html']) {
+  for (const file of ['index.html', 'concept.html', 'attempts.html', 'interactive/index.html',
+    ...(hasComparison ? ['comparison.html'] : [])]) {
     const html = await readFile(path.join(site, file), 'utf8');
     if (!file.startsWith('interactive/')) {
       requireValue(html.includes('href="interactive/index.html"'), 'Interactive navigation is missing');
+    }
+    if (hasComparison) {
+      requireValue(html.includes(`href="${file.startsWith('interactive/') ? '../' : ''}comparison.html"`),
+        'Comparison navigation is missing');
     }
     for (const [, reference] of html.matchAll(/\b(?:href|src|poster)=["']([^"']+)["']/g)) {
       const url = new URL(reference, pathToFileURL(path.resolve(site, file)));

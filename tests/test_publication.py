@@ -2,6 +2,7 @@ import hashlib
 import json
 import os
 import unittest
+from PIL import Image
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -78,6 +79,23 @@ class PublicationTests(unittest.TestCase):
         for row in inventory["attempts"]:
             self.assertTrue((SITE / row["image"]).is_file())
             self.assertIn(f'id="attempt-{row["attempt"]:02d}"', page)
+
+    def test_public_comparison_is_complete_and_has_no_private_records(self):
+        self.check_pages(("comparison.html",))
+        for name in ("index.html", "concept.html", "attempts.html", "interactive/index.html"):
+            self.assertIn("comparison.html", (SITE / name).read_text())
+        assets = SITE / "assets" / "comparison"
+        expected = {"motion-and-restart.mp4"}
+        for frame in (1, 61, 120):
+            for label in ("A", "B"):
+                name = f"frame-{frame:03}-{label}.jpg"
+                expected.add(name)
+                with Image.open(assets / name) as image:
+                    self.assertEqual(image.size, (1920, 1136))
+                    self.assertEqual(image.format, "JPEG")
+                    self.assertFalse(image.getexif())
+                    self.assertNotIn("xmp", image.info)
+        self.assertEqual({file.name for file in assets.iterdir()}, expected)
 
     def test_published_video_is_the_selected_delivery(self):
         path = SITE / "assets" / "street-scene-attempt-23.mp4"

@@ -10,7 +10,7 @@ import { MeshoptEncoder } from 'meshoptimizer';
 import { validateManifest } from '../web/contract.js';
 import {
   checkPublication, computeReviewIdentity, createIO, decodeAsset, documentSignature,
-  hash, historicalFiles, inspectDocument, validateWebAsset, walkFiles,
+  hash, historicalFiles, comparisonFiles, inspectDocument, validateWebAsset, walkFiles,
 } from './check-publication.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -175,6 +175,9 @@ export async function preparePreview(site, outputRoot) {
 export async function stageCandidate(assetDirectory, bundleDirectory, destination) {
   await validateWebAsset(assetDirectory);
   const sources = historicalFiles.map(file => [path.join(ROOT, 'docs', file), file]);
+  if ((await walkFiles(path.join(ROOT, 'docs'))).includes('comparison.html')) {
+    sources.push(...comparisonFiles.map(file => [path.join(ROOT, 'docs', file), file]));
+  }
   sources.push([path.join(ROOT, 'docs/interactive/index.html'), 'interactive/index.html']);
   for (const file of await walkFiles(assetDirectory)) sources.push([path.join(assetDirectory, file), `assets/interactive/${file}`]);
   for (const file of await walkFiles(bundleDirectory)) {

@@ -6,6 +6,8 @@ Attempt 23 is the selected final design.
 **[Watch the final video](https://ridermw.github.io/street-scene-showcase/)**
 | **[Concept art and references](https://ridermw.github.io/street-scene-showcase/concept.html)**
 | **[Browse the attempts](https://ridermw.github.io/street-scene-showcase/attempts.html)**
+| **[Interactive scene](https://ridermw.github.io/street-scene-showcase/interactive/)**
+| **[Side-by-side comparison](https://ridermw.github.io/street-scene-showcase/comparison.html)**
 
 ![Selected scene, attempt 23](docs/assets/final.jpg)
 
@@ -75,10 +77,13 @@ The source preserves those controls; it does not bypass them for this public exp
 Select `Hero car path`, `Chase camera path`, and `Afternoon sun direction`
 to edit the generated scene. Save an editing copy first.
 
-## Interactive interpretation (in development)
+## Interactive interpretation
 
-The interactive Three.js interpretation is not published yet. The final video,
-concept page, gallery, and GitHub Pages `main:/docs` deployment remain unchanged.
+The release includes the interactive Three.js interpretation and a public
+side-by-side comparison of the approved start, middle and end views, plus the
+full-motion browser recording. The original final video, concept content, gallery
+media, and GitHub Pages `main:/docs` deployment configuration remain unchanged.
+Both new pages are linked from the existing navigation.
 Source/export preconditions, the first actual-scene browser slice, and independent
 raw-export geometry/material/animation checks are implemented.
 The raw diagnostic export contains 932,272 triangles, seven converted text objects,
@@ -125,7 +130,7 @@ authored sun or adding a rendered light. The background and exposure are calibra
 separately. Exact-size captures and control checks pass in WebKit and hardware-backed
 Chromium on the local Apple M4 Pro.
 
-The frozen candidate passes 48 browser cases across Chromium and WebKit.
+The release passes 50 browser cases across Chromium and WebKit.
 Two intentional WebKit skips avoid duplicating the hardware benchmark and motion
 recording; WebKit still runs all correctness cases. Fault injection covers missing
 and stalled modules/assets/bodies, invalid model data, decoding and texture failure,
@@ -155,16 +160,20 @@ bytes and 33,554,432 shadow-target bytes. These are resource counters and estima
 not exact total browser or GPU memory. Node's decoded accessor inventory also
 includes animation data and totals 45,377,396 bytes.
 
-Private, source-hash-verified 1920 by 1080 start/middle/end comparisons and a complete
+Source-hash-verified 1920 by 1080 start/middle/end comparisons and a complete
 motion/restart recording are retained with the exact candidate identity.
+The public comparison uses the same reviewed labeled images and recording;
+source paths, review receipts and intermediate diagnostics are not distributed.
 The chronological review covers all 205 recorded frames at 25 fps; it does not
 replace the separately measured rendering throughput or explicit visual approval.
 Compared with Cycles, absent indirect/contact shadows make vehicles look less
 grounded, paint highlights/reflections are weaker or different, and the sky and
 contrast are flatter. Shadow aliasing and reduced distant shadow coverage remain.
 Finite-resolution bump and carbon conversion also remain approximations.
-These differences are **not visually accepted**. Publication is blocked pending
-explicit acceptance of this exact candidate or a decision to improve it.
+The user **approved these differences for publication on September 10, 2026**.
+This is acceptance of an interactive interpretation, not a claim of Cycles or
+external-reference parity. The editable Blender scene remains the source;
+the portable GLB and browser renderer are delivery artifacts, not replacements.
 
 `configs/gltf-export.example.json` is deliberately inactive. Before export or
 material baking, obtain a new bounded allowance and save the active configuration
@@ -194,9 +203,9 @@ complete browser, geometry, animation, and performance gates are satisfied.
 python3 -m unittest discover -s tests -p 'test_export_contract.py'
 ```
 
-The initial viewer pins Three.js `0.185.1`, Vite `8.2.2`, and Playwright `1.63.0`.
-Use Node `22.23.1` and the committed lockfile. Build candidates only into private
-staging while the release is incomplete:
+The viewer pins Three.js `0.185.1`, Vite `8.2.2`, and Playwright `1.63.0`.
+Use Node `22.23.1` and the committed lockfile. For a new candidate, build into private
+staging until its visual approval:
 
 ```sh
 npm ci
@@ -226,8 +235,8 @@ BROWSER_OUTPUT="$BROWSER_REPORTS" \
 PUBLICATION_SITE="$CANDIDATE_SITE" python3 -m unittest discover -s tests -p test_publication.py
 ```
 
-The default Python suite intentionally skips generated-release checks while
-`docs` has no published model; the explicit staged-site run requires every file.
+The default Python suite checks the committed release; the explicit staged-site
+run checks a new candidate before publication.
 The preview helper serves only its curated copy, never the repository or raw export
 root. Browser tests require full hardware-backed Chromium for the performance gate,
 not a software-rendered headless shell. A passing build or a resource allowance is
@@ -253,6 +262,23 @@ addition to subprocess success. Raw GLBs, manifests, textures, and receipts are
 diagnostic staging outputs, not permission to publish. The exporter never saves
 the opened Blender source. Do not serve the repository or an export directory:
 browser checks use a curated public-only tree beneath `/street-scene-showcase/`.
+
+To reproduce the committed runtime and check the public artifact set:
+
+```sh
+npm run build
+npm run check -- --site docs
+git diff --exit-code -- docs/interactive/assets
+```
+
+GitHub Pages uses branch publishing, not a new deployment workflow:
+
+```sh
+gh api repos/ridermw/street-scene-showcase/pages --jq '{source: .source, status: .status}'
+```
+
+Keep the source set to `main` and `/docs`. Integrate only a complete reviewed release,
+then verify the deployed HTML, hashed GLB, bundle, comparison media and original MP4.
 
 The initial 1024-pixel carbon atlas lost detail in close-up fixtures; the current
 candidate recipe uses 2048 pixels and records its deterministic UV-layout hash.

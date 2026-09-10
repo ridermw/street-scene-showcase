@@ -66,10 +66,11 @@ async function replacedAsset(page, bytes) {
 
 test('production prefix, existing pages, navigation and served files remain intact', async ({ page }) => {
   const observed = observe(page);
-  for (const file of ['index.html', 'concept.html', 'attempts.html']) {
+  for (const file of ['index.html', 'concept.html', 'attempts.html', 'comparison.html']) {
     await page.goto(`${prefix}${file}`);
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('nav a[href="interactive/index.html"]')).toBeVisible();
+    await expect(page.locator('nav a[href="comparison.html"]')).toBeVisible();
     await page.locator('img').evaluateAll(async images => {
       for (const image of images) image.loading = 'eager';
       await Promise.all(images.map(image => image.decode()));
@@ -86,6 +87,21 @@ test('production prefix, existing pages, navigation and served files remain inta
     expect((await page.request.get(`${prefix}${target}`)).ok()).toBe(true);
   }
   expect(observed.requests.filter(request => !request.startsWith(prefix) && !request.startsWith('blob:'))).toEqual([]);
+  expect(observed.errors).toEqual([]);
+});
+
+test('public comparisons remain paired on desktop and usable on mobile', async ({ page }) => {
+  const observed = observe(page);
+  await page.goto(`${prefix}comparison.html`);
+  await expect(page.locator('.pair')).toHaveCount(3);
+  await expect(page.locator('.pair img')).toHaveCount(6);
+  const pair = page.locator('.pair').first();
+  expect(await pair.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').length)).toBe(2);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await pair.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').length)).toBe(1);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await expect.poll(() => page.locator('video').evaluate(video => video.readyState)).toBeGreaterThanOrEqual(1);
+  expect(await page.locator('video').evaluate(video => video.duration)).toBeCloseTo(8.2, 1);
   expect(observed.errors).toEqual([]);
 });
 
