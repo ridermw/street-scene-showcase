@@ -41,6 +41,12 @@ It bakes only the original procedural carbon base color. The initial atlas was
 These conversions approximate source bump filtering and procedural detail; their
 appearance has not been approved for publication.
 
+Lossless PNG storage conversion is implemented separately from material
+conversion. It preserves image dimensions and decoded RGBA pixels, using exact
+palette indices where possible and retaining standard color-space metadata. Descriptive
+image metadata is omitted. Original JPEG texture bytes are not recompressed.
+The resulting complete compressed scene package has not yet been validated.
+
 The seven text objects are converted to geometry from Blender's built-in Bfont:
 one fictional `MARKET` sign and six fictional `SCN 018` plates. No font files are
 distributed. Vehicle and building geometry remains original procedural work.

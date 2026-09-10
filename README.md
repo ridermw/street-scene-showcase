@@ -91,6 +91,23 @@ on both source and reimported geometry. Additions and omissions are rejected.
 Two clean corrected exports have identical GLB and derived-image hashes.
 
 The corrected raw GLB is approximately 54.5 MiB, above the final 30 MiB package limit.
+Initial lossless mesh compression and resource deduplication produce a
+32,605,113-byte scene package, still over that limit. A diagnostic safe-sibling
+batching experiment saved only about 55 KB, so it has not been adopted.
+An image-only probe found about 1.86 MB of additional lossless PNG savings,
+with identical dimensions and every decoded RGBA pixel checked. This is enough
+projected savings, not a verified complete package result.
+
+`tools/optimize_png.py` implements the tested storage conversion using the
+existing Pillow dependency. It uses exact palette indices only for images with
+at most 256 distinct opaque colors; it does not reduce the color count, change
+pixels, or downscale. Other images retain full color and alpha. It preserves
+standard color-space chunks and removes descriptive metadata; embedded ICC
+profiles require separate review and are rejected. JPEGs are not recompressed.
+The complete candidate build was stopped by the resource supervisor when the
+approved allowance expired. Packaging integration and actual compressed-model
+browser verification require a fresh bounded allowance.
+
 The initial browser proof loads beneath the production site prefix and captures
 exact 1920 by 1080 frames. It is not a release candidate: shaded surfaces are too
 bright, reflections differ substantially, and shadows require calibration.
