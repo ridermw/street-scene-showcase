@@ -1,7 +1,7 @@
-import { AnimationClip, AnimationMixer, LoopOnce } from 'three';
+import { AnimationClip, AnimationMixer, InterpolateLinear, LoopOnce } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
-import { validateManifest } from './contract.js';
+import { validateManifest, validateMotionChannels } from './contract.js';
 
 const extensions = new Set([
   'KHR_lights_punctual', 'KHR_materials_clearcoat', 'KHR_materials_emissive_strength',
@@ -136,6 +136,15 @@ export function createSceneBundle(gltf, manifest) {
     throw new Error('Expected the single named source animation');
   }
   const sourceClip = gltf.animations[0];
+  validateMotionChannels(sourceClip.tracks.map(track => {
+    const split = track.name.lastIndexOf('.');
+    const property = track.name.slice(split + 1);
+    return {
+      node: track.name.slice(0, split), path: { position: 'translation', quaternion: 'rotation' }[property],
+      times: track.times, values: track.values,
+      interpolation: track.getInterpolation() === InterpolateLinear ? 'LINEAR' : 'unsupported',
+    };
+  }), manifest);
   const clip = new AnimationClip(sourceClip.name, manifest.animation.durationSeconds, sourceClip.tracks);
   const mixer = new AnimationMixer(root);
   const action = mixer.clipAction(clip);

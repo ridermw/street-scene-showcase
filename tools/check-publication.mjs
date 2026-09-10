@@ -8,7 +8,7 @@ import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer';
 import validator from 'gltf-validator';
 import { Matrix4, PerspectiveCamera, Vector3 } from 'three';
-import { validateManifest } from '../web/contract.js';
+import { validateManifest, validateMotionChannels } from '../web/contract.js';
 import { inspectGlb } from '../web/scene.js';
 
 await MeshoptDecoder.ready;
@@ -176,40 +176,12 @@ export function inspectDocument(document, manifest) {
   const clips = root.listAnimations();
   requireValue(clips.length === 1 && clips[0].getName() === manifest.animation.clip, 'Missing or duplicate animation');
   const channels = clips[0].listChannels();
-  const targets = new Set(channels.map(channel => channel.getTargetNode()?.getName()));
-  requireValue(channels.length === 6 && targets.size === 6
-    && roleNames.filter(name => name !== manifest.roles.sun).every(name => targets.has(name)),
-  'Animation must contain all six source controls exactly once');
-  for (const channel of channels) {
+  validateMotionChannels(channels.map(channel => {
     const sampler = channel.getSampler();
-    const times = sampler.getInput()?.getArray();
-    requireValue(times?.length === 120 && times.every((time, i) => Math.abs(time - i / 24) < 1e-6),
-      'Source sample times changed');
-    requireValue(sampler.getInterpolation() === 'LINEAR', 'Unexpected source interpolation');
-    const values = sampler.getOutput()?.getArray();
-    requireValue(values && values.every(Number.isFinite), 'Nonfinite motion track');
-    if (Object.values(manifest.roles.wheels).includes(channel.getTargetNode().getName())) {
-      requireValue(channel.getTargetPath() === 'rotation' && values.length === 480, 'Missing wheel rotation samples');
-      let total = 0;
-      for (let i = 0; i < 120; i++) {
-        const [x, y, z, w] = values.slice(i * 4, i * 4 + 4);
-        requireValue(Math.abs(y) < 1e-6 && Math.abs(z) < 1e-6
-          && Math.abs(Math.hypot(x, y, z, w) - 1) < 1e-5, 'Invalid wheel rotation');
-        if (i) {
-          const px = values[(i - 1) * 4], pw = values[(i - 1) * 4 + 3];
-          let dx = pw * x - px * w, dw = pw * w + px * x;
-          if (dw < 0) { dx = -dx; dw = -dw; }
-          const delta = 2 * Math.atan2(dx, dw);
-          requireValue(Math.abs(delta - manifest.expected.wheelRadians / 119) < 1e-4, 'Broken signed wheel continuity');
-          total += delta;
-        }
-      }
-      requireValue(Math.abs(total - manifest.expected.wheelRadians) < 1e-4, 'Broken signed wheel continuity');
-    } else {
-      requireValue(channel.getTargetPath() === 'translation' && values.length === 360, 'Missing translation samples');
-      requireValue(Math.abs(values[values.length - 1] - values[2] + 17.5) < 1e-4, 'Authored travel changed');
-    }
-  }
+    return { node: channel.getTargetNode()?.getName(), path: channel.getTargetPath(),
+      times: sampler.getInput()?.getArray(), values: sampler.getOutput()?.getArray(),
+      interpolation: sampler.getInterpolation() };
+  }), manifest);
   let triangleCount = 0, mainPassCeiling = 0, logicalObjects = 0;
   for (const node of nodes) {
     if (!node.getMesh()) continue;

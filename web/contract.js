@@ -126,3 +126,40 @@ export function validateManifest(value) {
   requireValue(value.materials.length > 0, 'materials', 'provenance is required');
   return value;
 }
+
+export function validateMotionChannels(channels, manifest) {
+  const wheels = Object.values(manifest.roles.wheels);
+  const expected = [manifest.roles.camera, manifest.roles.hero, ...wheels];
+  requireValue(channels.length === 6 && new Set(channels.map(channel => channel.node)).size === 6
+    && expected.every(name => channels.some(channel => channel.node === name)),
+  'motion', 'Animation must contain all six source controls exactly once');
+  for (const { node, path, times, values, interpolation } of channels) {
+    requireValue(times?.length === 120 && times.every((t, i) => Math.abs(t - i / 24) < 1e-6),
+      'motion', 'Source sample times changed');
+    requireValue(interpolation === 'LINEAR', 'motion', 'Unexpected source interpolation');
+    requireValue(values && values.every(Number.isFinite), 'motion', 'Nonfinite motion track');
+    if (wheels.includes(node)) {
+      requireValue(path === 'rotation' && values.length === 480, 'motion', 'Missing wheel rotation samples');
+      let total = 0;
+      for (let i = 0; i < 120; i++) {
+        const [x, y, z, w] = values.slice(i * 4, i * 4 + 4);
+        requireValue(Math.abs(y) < 1e-6 && Math.abs(z) < 1e-6 && Math.abs(Math.hypot(x, y, z, w) - 1) < 1e-5,
+          'motion', 'Invalid wheel rotation');
+        if (i) {
+          const px = values[(i - 1) * 4], pw = values[(i - 1) * 4 + 3];
+          let dx = pw * x - px * w, dw = pw * w + px * x;
+          if (dw < 0) { dx = -dx; dw = -dw; }
+          const delta = 2 * Math.atan2(dx, dw);
+          requireValue(Math.abs(delta - manifest.expected.wheelRadians / 119) < 1e-4,
+            'motion', 'Broken signed wheel continuity');
+          total += delta;
+        }
+      }
+      requireValue(Math.abs(total - manifest.expected.wheelRadians) < 1e-4, 'motion', 'Broken signed wheel continuity');
+    } else {
+      requireValue(path === 'translation' && values.length === 360, 'motion', 'Missing translation samples');
+      requireValue(Math.abs(values[359] - values[2] + manifest.expected.travelMeters) < 1e-4,
+        'motion', 'Authored travel changed');
+    }
+  }
+}

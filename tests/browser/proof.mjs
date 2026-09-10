@@ -46,6 +46,21 @@ try {
     await writeFile(path.join(output, `${frame}.png`), png);
     captures.push({ frame, ...snapshot });
   }
+  for (const [seconds, anchor] of [[5, captures[2]], [2.5, captures[1]], [0, captures[0]]]) {
+    const sampled = await page.evaluate(seconds => {
+      window.__streetSceneCapture.seek(seconds);
+      window.__streetSceneCapture.renderOnce();
+      return window.__streetSceneCapture.snapshot();
+    }, seconds);
+    for (const key of ['heroPosition', 'cameraPosition', 'projection']) {
+      assert.ok(sampled[key].every((value, index) => Math.abs(value - anchor[key][index]) < 1e-6),
+        `${key} failed backward/final-hold sampling at ${seconds}`);
+    }
+    for (const name of Object.keys(anchor.wheelRotations)) {
+      assert.ok(sampled.wheelRotations[name].every((value, index) =>
+        Math.abs(value - anchor.wheelRotations[name][index]) < 1e-6));
+    }
+  }
   const gpu = await page.evaluate(() => {
     const gl = document.querySelector('canvas').getContext('webgl2');
     const extension = gl.getExtension('WEBGL_debug_renderer_info');

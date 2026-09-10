@@ -120,6 +120,12 @@ performance result. Playback and inspection controls,
 failure-path coverage, final visual
 approval, and publication remain outstanding.
 
+The deterministic playback clock is implemented independently of rendering:
+start paused, one five-second run, final hold, pause/resume and immediate restart.
+Node and browser consumers share the same six-channel motion validation.
+Real-model browser checks also exercise final hold and backward seeks after end.
+The page controls and continuous render-loop integration are the next step.
+
 `configs/gltf-export.example.json` is deliberately inactive. Before export or
 material baking, obtain a new bounded allowance and save the active configuration
 only in private task-owned staging. Specify timezone-aware start/deadline values,

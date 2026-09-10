@@ -78,3 +78,16 @@ test('rejects unsafe seek values rather than forwarding them to the mixer', () =
 test('rejects malformed GLB before invoking the loader', () => {
   assert.throws(() => inspectGlb(new ArrayBuffer(4)), /GLB/);
 });
+
+test('rejects missing, mistimed, nonfinite or discontinuous motion tracks', () => {
+  for (const mutate of [
+    gltf => gltf.animations[0].tracks.pop(),
+    gltf => { gltf.animations[0].tracks[0].times[50] += 0.01; },
+    gltf => { gltf.animations[0].tracks[1].values[20] = NaN; },
+    gltf => { const v = gltf.animations[0].tracks[2].values; v.set(v.slice(40, 44), 80); },
+  ]) {
+    const { gltf, manifest } = fixture();
+    mutate(gltf);
+    assert.throws(() => createSceneBundle(gltf, manifest), /motion|sample|continuity|track/i);
+  }
+});
