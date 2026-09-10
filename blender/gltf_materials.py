@@ -64,6 +64,7 @@ def _derive_normal(image, path, meters, distance, strength):
 
 def _carbon_bake(scene, carbon, output, resolution):
     import bpy
+    import numpy as np
 
     objects = sorted(
         (obj for obj in scene.objects if obj.type == "MESH" and
@@ -82,6 +83,12 @@ def _carbon_bake(scene, carbon, output, resolution):
     bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.006,
                              area_weight=0, correct_aspect=True, scale_to_bounds=False)
     bpy.ops.object.mode_set(mode="OBJECT")
+    layout = hashlib.sha256()
+    for obj in objects:
+        values = np.empty(len(obj.data.uv_layers.active.data) * 2, dtype=np.float32)
+        obj.data.uv_layers.active.data.foreach_get("uv", values)
+        layout.update(obj.name.encode())
+        layout.update(values.tobytes())
     image = bpy.data.images.new("carbon-color", width=resolution, height=resolution, alpha=False)
     image.colorspace_settings.name = "sRGB"
     materials = set(slot.material for obj in objects for slot in obj.material_slots)
@@ -127,6 +134,7 @@ def _carbon_bake(scene, carbon, output, resolution):
         "objects": [obj.name for obj in objects], "resolution": resolution,
         "marginPixels": 4, "islandMargin": 0.006, "angleDegrees": 66,
         "samples": 1, "seed": 42, "pass": "EMIT", "device": "CPU", "threads": 4,
+        "uvLayoutSha256": layout.hexdigest(),
     }
 
 
@@ -158,6 +166,21 @@ def prepare_materials(scene, staging_dir, recipe, source_hashes):
         if scale.operation != "SCALE" or abs(scale.inputs["Scale"].default_value - 1 / meters) > 1e-6:
             raise ValueError("Source texture scale differs from recipe")
         groups[material.name] = meters
+        legacy_tint = next(node for node in nodes if node.type == "MIX_RGB")
+        if legacy_tint.blend_type != "MULTIPLY" or legacy_tint.inputs[0].default_value != 1:
+            raise ValueError("Unsupported source tint operation")
+        tint = nodes.new("ShaderNodeMix")
+        tint.data_type = "RGBA"
+        tint.blend_type = "MULTIPLY"
+        tint.inputs[0].default_value = 1
+        tint_a = next(socket for socket in tint.inputs if socket.identifier == "A_Color")
+        tint_b = next(socket for socket in tint.inputs if socket.identifier == "B_Color")
+        tint_b.default_value = legacy_tint.inputs[2].default_value
+        links.new(legacy_tint.inputs[1].links[0].from_socket, tint_a)
+        color_output = next(socket for socket in tint.outputs if socket.identifier == "Result_Color")
+        bsdf = next(node for node in nodes if node.type == "BSDF_PRINCIPLED")
+        links.new(color_output, bsdf.inputs["Base Color"])
+        nodes.remove(legacy_tint)
         channels = {}
         hashes = {}
         for node in textures:

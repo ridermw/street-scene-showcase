@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "blender"))
 from gltf_materials import prepare_materials
 from pipeline.evidence import atomic_json, digest
-from tools.export_contract import sample_seconds, validate_allowance, verify_output_path, verify_source
+from tools.export_contract import sample_seconds, validate_export_job, verify_output_path, verify_source
 
 
 ROLE_NAMES = {
@@ -94,11 +94,10 @@ def export(source, output, config):
     started = time.monotonic()
     if not bpy.app.background:
         raise RuntimeError("Export requires an isolated background process")
-    validate_allowance(config)
-    verify_source(source, config["source_sha256"])
+    run = validate_export_job(config)
     if Path(source).resolve() != Path(config["source"]).resolve():
         raise ValueError("CLI source differs from authorized source")
-    output = verify_output_path(source, output, staging_root=config["data_root"],
+    output = verify_output_path(source, output, staging_root=run,
                                 readonly_roots=config["readonly_roots"])
     output.mkdir(exist_ok=True)
     bpy.ops.wm.open_mainfile(filepath=str(source), use_scripts=False)

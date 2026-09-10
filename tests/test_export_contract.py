@@ -2,6 +2,8 @@ import datetime
 import hashlib
 import importlib.util
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -195,6 +197,52 @@ class ExportContractTests(unittest.TestCase):
         config = json.loads((ROOT / "configs" / "gltf-export.example.json").read_text())
         with self.assertRaisesRegex(ValueError, "inactive"):
             self.validate_allowance(config)
+
+    def export_job(self):
+        return self.allowance() | {
+            "data_root": str(self.staging), "run_id": "export-run",
+            "source": str(self.source), "source_sha256": self.sha256,
+            "readonly_roots": [str(self.readonly)],
+        }
+
+    def test_supervised_run_stays_inside_disjoint_staging_before_writes(self):
+        config = self.export_job()
+        result = self.contract.validate_export_job(
+            config, now=datetime.datetime(2026, 1, 1, 12, 5, tzinfo=UTC))
+        self.assertEqual(result, self.staging / "export-run")
+        self.assertFalse(result.exists())
+
+    def test_supervisor_rejects_escaping_or_readonly_run_before_writes(self):
+        alias = self.staging / "alias"
+        alias.symlink_to(self.readonly)
+        for updates in [{"data_root": str(self.readonly)}, {"run_id": "../escape"},
+                        {"run_id": str(self.root / "absolute")}, {"run_id": "alias"}]:
+            with self.subTest(updates=updates), self.assertRaises(ValueError):
+                self.contract.validate_export_job(
+                    self.export_job() | updates,
+                    now=datetime.datetime(2026, 1, 1, 12, 5, tzinfo=UTC))
+        self.assertEqual(list(self.readonly.iterdir()), [self.source])
+
+    def test_export_supervisor_cli_rejects_invalid_configuration_before_logs(self):
+        now = datetime.datetime.now(UTC)
+        for updates, log in [({"enabled": False}, "job.log"),
+                             ({"data_root": str(self.readonly)}, "job.log"),
+                             ({}, "../escape.log")]:
+            config = self.export_job() | {
+                "kind": "gltf-export", "started_utc": now.isoformat(),
+                "deadline_utc": (now + datetime.timedelta(minutes=30)).isoformat(),
+            } | updates
+            path = self.root / "job.json"
+            path.write_text(json.dumps(config))
+            result = subprocess.run(
+                [sys.executable, "-m", "pipeline.job", "--config", str(path),
+                 "--log", log, "--", sys.executable, "-c", "raise AssertionError('must not execute')"],
+                cwd=ROOT, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertNotIn("must not execute", result.stderr)
+            self.assertFalse((self.staging / "export-run").exists())
+            self.assertFalse((self.readonly / "export-run").exists())
+            self.assertFalse((self.staging / "escape.log").exists())
 
 
 if __name__ == "__main__":

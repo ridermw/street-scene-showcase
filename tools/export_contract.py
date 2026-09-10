@@ -105,3 +105,24 @@ def validate_allowance(config, *, now=None):
     current = now.timestamp()
     if started > current or deadline <= current + 300 or deadline <= started:
         raise ValueError("Export allowance is not current or consumes the five-minute reserve")
+
+
+def validate_export_job(config, *, now=None):
+    """Validate the supervisor's write boundary before it creates logs or locks."""
+    validate_allowance(config, now=now)
+    source = _absolute_path(config.get("source"))
+    verify_source(source, config.get("source_sha256"))
+    staging = _absolute_path(config.get("data_root"))
+    roots = config.get("readonly_roots")
+    if not isinstance(roots, list) or not roots:
+        raise ValueError("Explicit read-only roots are required")
+    protected = [_absolute_path(root) for root in roots] + [source]
+    if not staging.is_dir() or any(_overlap(staging, root) for root in protected):
+        raise ValueError("Supervisor staging overlaps a source boundary or does not exist")
+    run_id = config.get("run_id")
+    if not isinstance(run_id, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", run_id):
+        raise ValueError("Run identifier must be a single safe directory name")
+    run = (staging / run_id).resolve()
+    if not run.is_relative_to(staging) or run == staging or any(_overlap(run, root) for root in protected):
+        raise ValueError("Supervised run escapes owned staging")
+    return run

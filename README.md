@@ -79,18 +79,24 @@ to edit the generated scene. Save an editing copy first.
 
 The interactive Three.js interpretation is not published yet. The final video,
 concept page, gallery, and GitHub Pages `main:/docs` deployment remain unchanged.
-Source/export preconditions and the first actual-scene browser slice are implemented.
+Source/export preconditions, the first actual-scene browser slice, and independent
+raw-export geometry/material/animation checks are implemented.
 The raw diagnostic export contains 932,272 triangles, seven converted text objects,
 seven embedded images, and all 120 samples on the six authored motion controls.
-Its effective camera projection agrees with the source.
+Its effective camera projection agrees with the source. Independent checks reopen
+the frozen scene and compare every exported triangle, corner normal, material
+assignment, all 120 control poses, and the full signed wheel revolutions.
+They also exercise recessed glazing, attached trim, and recessed shoulder vents
+on both source and reimported geometry. Additions and omissions are rejected.
+Two clean corrected exports have identical GLB and derived-image hashes.
 
-The raw GLB is approximately 53.9 MiB, above the final 30 MiB package limit.
+The corrected raw GLB is approximately 54.5 MiB, above the final 30 MiB package limit.
 The initial browser proof loads beneath the production site prefix and captures
 exact 1920 by 1080 frames. It is not a release candidate: shaded surfaces are too
 bright, reflections differ substantially, and shadows require calibration.
 The initial browser used software rendering, so it establishes no hardware
-performance result. Independent geometry/material checks, lossless asset
-preparation, playback and inspection controls, failure-path coverage, visual
+performance result. Lossless asset preparation, playback and inspection controls,
+failure-path coverage, final visual
 approval, and publication remain outstanding.
 
 `configs/gltf-export.example.json` is deliberately inactive. Before export or
@@ -101,6 +107,9 @@ source and approved SHA256, and all read-only source roots. Set `data_root` to
 owned staging and `run_id` to a new child directory. Never reuse an expired scene
 construction allowance. The existing `pipeline.job --config` supervisor retains
 its heavy-job lock, storage monitoring, pause handling, and five-minute reserve.
+Export configurations identify themselves with `kind: "gltf-export"` so the
+supervisor validates source and run boundaries before creating logs or locks.
+The exporter restricts every output to that monitored run directory.
 
 Exports must use new or empty directories strictly inside the owned staging
 boundary, disjoint from the source directories. Parent traversal and source
@@ -143,6 +152,25 @@ addition to subprocess success. Raw GLBs, manifests, textures, and receipts are
 diagnostic staging outputs, not permission to publish. The exporter never saves
 the opened Blender source. Do not serve the repository or an export directory:
 browser checks use a curated public-only tree beneath `/street-scene-showcase/`.
+
+The initial 1024-pixel carbon atlas lost detail in close-up fixtures; the current
+candidate recipe uses 2048 pixels and records its deterministic UV-layout hash.
+The example retains the starting resolution. Asymmetric six-axis material crops
+verify UV phase/orientation; periodic signed-normal checks and matched material
+crops cover bump conversion. The baked weave remains a finite-resolution
+approximation, not procedural or Cycles parity.
+
+Run the independent actual-scene inspection under the same fresh supervisor:
+
+```sh
+python3 -m pipeline.job --config "$EXPORT_CONFIG" --log inspect-export.log -- \
+  blender --background --factory-startup --disable-autoexec --python-exit-code 1 \
+  -P tests/inspect_gltf_export.py -- \
+  --source "$SOURCE_BLEND" --glb "$RAW_GLB" --receipt "$INSPECTION_RECEIPT"
+```
+
+Require its complete receipt. Small material fixtures use the same script with
+`--material-crops "$FIXTURE_DIRECTORY"`; `--fixture` runs signed-UV/normal checks.
 
 ## References and rights
 

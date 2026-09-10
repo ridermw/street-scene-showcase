@@ -1,4 +1,5 @@
 {
+  "kind": "gltf-export",
   "enabled": false,
   "started_utc": null,
   "deadline_utc": null,

@@ -36,7 +36,8 @@ The displayed renders and final video come from this scene.
 
 The export code derives tangent-space normal maps from the retained CC0 height
 images and converts world-space brick/asphalt projection to tiled UV coordinates.
-It bakes only the original procedural carbon base color into a 1024 by 1024 atlas.
+It bakes only the original procedural carbon base color. The initial atlas was
+1024 by 1024; the current candidate uses 2048 by 2048 to retain more weave detail.
 These conversions approximate source bump filtering and procedural detail; their
 appearance has not been approved for publication.
 
