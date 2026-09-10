@@ -75,6 +75,38 @@ The source preserves those controls; it does not bypass them for this public exp
 Select `Hero car path`, `Chase camera path`, and `Afternoon sun direction`
 to edit the generated scene. Save an editing copy first.
 
+## Interactive interpretation (in development)
+
+The interactive Three.js interpretation is not published yet. The final video,
+concept page, gallery, and GitHub Pages `main:/docs` deployment remain unchanged.
+The first implementation checkpoint adds source identity, output-boundary,
+frame-timing, and fresh-resource preconditions; it does not yet export a GLB.
+
+`configs/gltf-export.example.json` is deliberately inactive. Before export or
+material baking, obtain a new bounded allowance and save the active configuration
+only in private task-owned staging. Specify timezone-aware start/deadline values,
+positive integer storage-growth and free-space limits, one heavy job, the frozen
+source and approved SHA256, and all read-only source roots. Set `data_root` to
+owned staging and `run_id` to a new child directory. Never reuse an expired scene
+construction allowance. The existing `pipeline.job --config` supervisor retains
+its heavy-job lock, storage monitoring, pause handling, and five-minute reserve.
+
+Exports must use new or empty directories strictly inside the owned staging
+boundary, disjoint from the source directories. Parent traversal and source
+aliases (including symlinks and hard links) are rejected. These checks are
+preconditions, not a sandbox: keep staging exclusively task-owned. Do not save
+over the frozen `.blend`, write into either source tree, or publish source
+records, machine paths, intermediate receipts, or reference media.
+
+Source frames 1 through 120 map to `0` through `119 / 24` seconds. The viewer will
+hold the final pose until five seconds rather than stretch the sampled motion.
+Generated candidates stay private until exact-artifact visual approval and the
+complete browser, geometry, animation, and performance gates are satisfied.
+
+```sh
+python3 -m unittest discover -s tests -p 'test_export_contract.py'
+```
+
 ## References and rights
 
 See [CREDITS.md](CREDITS.md) for material sources and external reference links.
