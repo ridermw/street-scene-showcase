@@ -1,0 +1,7 @@
+#scene-viewport { width: 100%; aspect-ratio: 16 / 9; background: #15191f; }
+#scene-canvas { display: block; width: 100%; height: 100%; }
+.viewer-controls { display: flex; flex-wrap: wrap; gap: .65rem; margin: 1rem 0; }
+.viewer-controls button { padding: .65rem 1rem; font: inherit; cursor: pointer; }
+.viewer-controls button:disabled { cursor: not-allowed; opacity: .55; }
+button:focus-visible, a:focus-visible { outline: 3px solid #e3ba73; outline-offset: 4px; }
+[hidden] { display: none !important; }

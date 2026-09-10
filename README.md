@@ -79,8 +79,19 @@ to edit the generated scene. Save an editing copy first.
 
 The interactive Three.js interpretation is not published yet. The final video,
 concept page, gallery, and GitHub Pages `main:/docs` deployment remain unchanged.
-The first implementation checkpoint adds source identity, output-boundary,
-frame-timing, and fresh-resource preconditions; it does not yet export a GLB.
+Source/export preconditions and the first actual-scene browser slice are implemented.
+The raw diagnostic export contains 932,272 triangles, seven converted text objects,
+seven embedded images, and all 120 samples on the six authored motion controls.
+Its effective camera projection agrees with the source.
+
+The raw GLB is approximately 53.9 MiB, above the final 30 MiB package limit.
+The initial browser proof loads beneath the production site prefix and captures
+exact 1920 by 1080 frames. It is not a release candidate: shaded surfaces are too
+bright, reflections differ substantially, and shadows require calibration.
+The initial browser used software rendering, so it establishes no hardware
+performance result. Independent geometry/material checks, lossless asset
+preparation, playback and inspection controls, failure-path coverage, visual
+approval, and publication remain outstanding.
 
 `configs/gltf-export.example.json` is deliberately inactive. Before export or
 material baking, obtain a new bounded allowance and save the active configuration
@@ -106,6 +117,32 @@ complete browser, geometry, animation, and performance gates are satisfied.
 ```sh
 python3 -m unittest discover -s tests -p 'test_export_contract.py'
 ```
+
+The initial viewer pins Three.js `0.185.1`, Vite `8.2.2`, and Playwright `1.63.0`.
+Use Node `22.23.1` and the committed lockfile. Build candidates only into private
+staging while the release is incomplete:
+
+```sh
+npm ci
+npm run test:unit
+npm run build -- --outDir "$CANDIDATE_SITE/interactive/assets"
+```
+
+The isolated export requires the frozen scene's retained `scene.json` and packed
+source images. With an authorized private configuration and a new output directory:
+
+```sh
+python3 -m pipeline.job --config "$EXPORT_CONFIG" --log gltf-export.log -- \
+  blender --background --factory-startup --disable-autoexec --python-exit-code 1 \
+  -P blender/export_gltf.py -- \
+  --source "$SOURCE_BLEND" --output "$EXPORT_STAGING" --recipe "$EXPORT_CONFIG"
+```
+
+Require `export-receipt.json` with `complete: true` and matching source hashes in
+addition to subprocess success. Raw GLBs, manifests, textures, and receipts are
+diagnostic staging outputs, not permission to publish. The exporter never saves
+the opened Blender source. Do not serve the repository or an export directory:
+browser checks use a curated public-only tree beneath `/street-scene-showcase/`.
 
 ## References and rights
 

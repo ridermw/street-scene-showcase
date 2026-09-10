@@ -31,3 +31,20 @@ and [CC0 1.0 terms](https://creativecommons.org/publicdomain/zero/1.0/).
 Color, roughness, and displacement images were used.
 Brick scale is 1.05 meters. Asphalt scale is an inferred 1.5 meters.
 The displayed renders and final video come from this scene.
+
+## Interactive conversion (in development)
+
+The export code derives tangent-space normal maps from the retained CC0 height
+images and converts world-space brick/asphalt projection to tiled UV coordinates.
+It bakes only the original procedural carbon base color into a 1024 by 1024 atlas.
+These conversions approximate source bump filtering and procedural detail; their
+appearance has not been approved for publication.
+
+The seven text objects are converted to geometry from Blender's built-in Bfont:
+one fictional `MARKET` sign and six fictional `SCN 018` plates. No font files are
+distributed. Vehicle and building geometry remains original procedural work.
+
+The developing viewer uses Three.js and its bundled Meshopt decoder. A complete
+release must include their applicable license notices with the approved bundle.
+No interactive model, derived texture package, or reference comparison media has
+been published yet.
