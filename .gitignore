@@ -6,3 +6,4 @@ __pycache__/
 *.blend1
 data/
 configs/street_scene.json
+/THREEJS-IMPLEMENTATION-PLAN.md
